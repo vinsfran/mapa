@@ -54,10 +54,9 @@
             <button onclick="changeOpacity()">Change opacity</button>
             <br/>
             <h:form> 
-                <div>
-                    <label>Tipo de reclamo</label>
-                    <h:selectOneMenu value="#{reclamosWebMB.reclamo.fkCodTipoReclamo.codTipoReclamo}" 
-                                     class="form-control">
+                <h:panelGrid columns="2">
+                    <label>Tipo de reclamo: </label>
+                    <h:selectOneMenu value="#{reclamosWebMB.reclamo.fkCodTipoReclamo.codTipoReclamo}">
                         <f:selectItem itemLabel="Seleccione un tipo de reclamo" 
                                       noSelectionOption="false"
                                       itemDisabled="true"/>
@@ -66,25 +65,40 @@
                                        itemValue="#{tiposReclamos.codTipoReclamo}" 
                                        itemLabel="#{tiposReclamos.nombreTipoReclamo.toUpperCase()}"/>
                     </h:selectOneMenu>
-                </div>    
-                <div>
-                    <label for="fechaDesde" class="col-lg-3 control-label">Fecha de desde: </label>
-                    <p:calendar id="fechaInicio" 
-                                value="#{reclamosWebMB.fechaDesde}"
-                                pattern="dd/MM/yyyy"
-                                mask="true"
-                                locale="es"/>
 
-                    <label for="fechaHasta" class="col-lg-3 control-label"> hasta: </label>
-                    <p:calendar id="fechaFin"
-                                value="#{reclamosWebMB.fechaHasta}"
-                                pattern="dd/MM/yyyy"
-                                mask="true"
-                                locale="es"/>
 
-                    
-                </div>
-                <h:commandButton class="btn btn-primary" action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar"/>
+                    <label for="estado">Estado:</label>
+                    <h:selectManyCheckbox id="estado" value="#{userData.data}">
+                        <f:selectItem itemValue="1" itemLabel="Pendientes" />
+                        <f:selectItem itemValue="2" itemLabel="Atendidos" />
+                        <f:selectItem itemValue="3" itemLabel="Finalizados" />
+                    </h:selectManyCheckbox>
+
+                </h:panelGrid>
+
+                <label for="fechaDesde">Fecha desde: </label>
+                <p:calendar id="fechaInicio" 
+                            value="#{reclamosWebMB.fechaDesde}"
+                            pattern="dd/MM/yyyy"
+                            mask="true"
+                            locale="es"/>
+
+                <label for="fechaHasta">Fecha hasta: </label>
+                <p:calendar id="fechaFin"
+                            value="#{reclamosWebMB.fechaHasta}"
+                            pattern="dd/MM/yyyy"
+                            mask="true"
+                            locale="es"/>
+
+
+                <h:panelGrid columns="3">
+                    <label for="tipoMapa">Tipo de mapa:</label>
+                    <h:selectManyCheckbox id="tipoMapa" value="#{userData.data}">
+                        <f:selectItem itemValue="1" itemLabel="Mapa marcar" />
+                        <f:selectItem itemValue="2" itemLabel="Mapa de calor" />
+                    </h:selectManyCheckbox>
+                    <h:commandButton class="btn btn-primary" action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar"/>
+                </h:panelGrid>
 
             </h:form>
         </div>
