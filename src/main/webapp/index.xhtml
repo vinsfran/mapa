@@ -22,7 +22,7 @@
             #floating-panel {
                 position: absolute;
                 top: 10px;
-                left: 25%;
+                left: 10px;
                 z-index: 5;
                 background-color: #fff;
                 padding: 5px;
@@ -36,7 +36,6 @@
             #floating-panel {
                 background-color: #fff;
                 border: 1px solid #999;
-                left: 25%;
                 padding: 5px;
                 position: absolute;
                 top: 10px;
@@ -67,14 +66,14 @@
                     </h:selectOneMenu>
 
 
-                    <label for="estado">Estado:</label>
-                    <h:selectManyCheckbox id="estado" value="#{userData.data}">
+<!--                    <label for="estado">Estado:</label>
+                    <h:selectManyCheckbox id="estado" value="">
                         <f:selectItem itemValue="1" itemLabel="Pendientes" />
                         <f:selectItem itemValue="2" itemLabel="Atendidos" />
                         <f:selectItem itemValue="3" itemLabel="Finalizados" />
-                    </h:selectManyCheckbox>
+                    </h:selectManyCheckbox>-->
 
-                </h:panelGrid>
+             
 
                 <label for="fechaDesde">Fecha desde: </label>
                 <p:calendar id="fechaInicio" 
@@ -91,13 +90,14 @@
                             locale="es"/>
 
 
-                <h:panelGrid columns="3">
+                
                     <label for="tipoMapa">Tipo de mapa:</label>
-                    <h:selectManyCheckbox id="tipoMapa" value="#{userData.data}">
-                        <f:selectItem itemValue="1" itemLabel="Mapa marcar" />
+                    <h:selectOneRadio id="tipoMapa" >
+                        <f:selectItem itemValue="1" itemLabel="Mapa con marcadores" />
                         <f:selectItem itemValue="2" itemLabel="Mapa de calor" />
-                    </h:selectManyCheckbox>
+                    </h:selectOneRadio>
                     <h:commandButton class="btn btn-primary" action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar"/>
+                    <h:outputText value="#{reclamosWebMB.resultadoConsulta}"/>
                 </h:panelGrid>
 
             </h:form>

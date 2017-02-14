@@ -32,6 +32,7 @@ public class ReclamosWebMB implements Serializable {
     private Date fechaDesde;
     private Date fechaHasta;
     private List<TiposReclamos> tiposDeReclamos;
+    private String resultadoConsulta;
 
     @EJB
     private ReclamosSB reclamosSB;
@@ -44,6 +45,7 @@ public class ReclamosWebMB implements Serializable {
     public void init() {
         reclamo = new Reclamos();
         reclamo.setFkCodTipoReclamo(new TiposReclamos());
+        resultadoConsulta = "";
     }
 
     public String consultarPorRangoDeFecha() {
@@ -135,5 +137,23 @@ public class ReclamosWebMB implements Serializable {
      */
     public void setTiposDeReclamos(List<TiposReclamos> tiposDeReclamos) {
         this.tiposDeReclamos = tiposDeReclamos;
+    }
+
+    /**
+     * @return the resultadoConsulta
+     */
+    public String getResultadoConsulta() {
+        resultadoConsulta = "";
+        if (listaRec != null && listaRec.size() > 0) {
+            resultadoConsulta = "Total de reclamos: " + listaRec.size();
+        }
+        return resultadoConsulta;
+    }
+
+    /**
+     * @param resultadoConsulta the resultadoConsulta to set
+     */
+    public void setResultadoConsulta(String resultadoConsulta) {
+        this.resultadoConsulta = resultadoConsulta;
     }
 }
