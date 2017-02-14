@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <meta charset="utf-8"/>
+        <title>Heatmaps</title>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 100%;
+            }
+            #floating-panel {
+                position: absolute;
+                top: 10px;
+                left: 25%;
+                z-index: 5;
+                background-color: #fff;
+                padding: 5px;
+                border: 1px solid #999;
+                text-align: left;
+                font-family: 'Roboto','sans-serif';
+                line-height: 30px;
+                padding-left: 10px;
+            }
+
+            #floating-panel {
+                background-color: #fff;
+                border: 1px solid #999;
+                left: 25%;
+                padding: 5px;
+                position: absolute;
+                top: 10px;
+                z-index: 5;
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+
+        <div id="floating-panel">
+            <button onclick="toggleHeatmap()">Toggle Heatmap</button>
+            <button onclick="changeGradient()">Change gradient</button>
+            <button onclick="changeRadius()">Change radius</button>
+            <button onclick="changeOpacity()">Change opacity</button>
+            <br/>
+            <h:form> 
+                <div>
+                    <label>Tipo de reclamo</label>
+                    <h:selectOneMenu value="#{reclamosWebMB.reclamo.fkCodTipoReclamo.codTipoReclamo}" 
+                                     class="form-control">
+                        <f:selectItem itemLabel="Seleccione un tipo de reclamo" 
+                                      noSelectionOption="false"
+                                      itemDisabled="true"/>
+                        <f:selectItems value="#{reclamosWebMB.tiposDeReclamos}" 
+                                       var="tiposReclamos"
+                                       itemValue="#{tiposReclamos.codTipoReclamo}" 
+                                       itemLabel="#{tiposReclamos.nombreTipoReclamo.toUpperCase()}"/>
+                    </h:selectOneMenu>
+                </div>    
+                <div>
+                    <label for="fechaDesde" class="col-lg-3 control-label">Fecha de desde: </label>
+                    <p:calendar id="fechaInicio" 
+                                value="#{reclamosWebMB.fechaDesde}"
+                                pattern="dd/MM/yyyy"
+                                mask="true"
+                                locale="es"/>
+
+                    <label for="fechaHasta" class="col-lg-3 control-label"> hasta: </label>
+                    <p:calendar id="fechaFin"
+                                value="#{reclamosWebMB.fechaHasta}"
+                                pattern="dd/MM/yyyy"
+                                mask="true"
+                                locale="es"/>
+
+                    
+                </div>
+                <h:commandButton class="btn btn-primary" action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar"/>
+
+            </h:form>
+        </div>
+        <div id="map"></div>
+        <h:outputScript>
+            var map, heatmap;
+            function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 13,
+            center: {lat: -25.2929451, lng: -57.6072704}
+
+            });
+            heatmap = new google.maps.visualization.HeatmapLayer({
+            data: getPoints(),
+            map: map
+            });
+            }
+
+            function toggleHeatmap() {
+            heatmap.setMap(heatmap.getMap() ? null : map);
+            }
+
+            function changeGradient() {
+            var gradient = [
+            'rgba(0, 255, 255, 0)',
+            'rgba(0, 255, 255, 1)',
+            'rgba(0, 191, 255, 1)',
+            'rgba(0, 127, 255, 1)',
+            'rgba(0, 63, 255, 1)',
+            'rgba(0, 0, 255, 1)',
+            'rgba(0, 0, 223, 1)',
+            'rgba(0, 0, 191, 1)',
+            'rgba(0, 0, 159, 1)',
+            'rgba(0, 0, 127, 1)',
+            'rgba(63, 0, 91, 1)',
+            'rgba(127, 0, 63, 1)',
+            'rgba(191, 0, 31, 1)',
+            'rgba(255, 0, 0, 1)'
+            ]
+            heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+            }
+
+            function changeRadius() {
+            heatmap.set('radius', heatmap.get('radius') ? null : 20);
+            }
+
+            function changeOpacity() {
+            heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+            }
+
+
+            // Heatmap data: 500 Points
+            function getPoints() {
+            return [
+            <ui:repeat value = "#{reclamosWebMB.listaRec}" var = "reclamo" >
+                new google.maps.LatLng(#{reclamo.latitud}, #{reclamo.longitud}),                
+            </ui:repeat>
+            ];
+            }
+
+        </h:outputScript>
+
+        <script  async="" defer=""
+                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
+        </script>
+
+
+    </h:body>
+
+</html>
