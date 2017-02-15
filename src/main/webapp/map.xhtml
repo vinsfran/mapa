@@ -4,7 +4,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <h:head>
         <meta charset="utf-8"/>
@@ -21,12 +22,12 @@
             #floating-panel {
                 position: absolute;
                 top: 10px;
-                left: 25%;
+                left: 10px;
                 z-index: 5;
                 background-color: #fff;
                 padding: 5px;
                 border: 1px solid #999;
-                text-align: center;
+                text-align: left;
                 font-family: 'Roboto','sans-serif';
                 line-height: 30px;
                 padding-left: 10px;
@@ -35,7 +36,6 @@
             #floating-panel {
                 background-color: #fff;
                 border: 1px solid #999;
-                left: 25%;
                 padding: 5px;
                 position: absolute;
                 top: 10px;
@@ -46,93 +46,163 @@
 
     <h:body>
         <div id="floating-panel">
-            <p:commandLink action="#{statusBean.getStatuses}" oncomplete="afterLoad(xhr, status, args)" value="jfjdh"/>
-
             <button onclick="toggleHeatmap()">Toggle Heatmap</button>
             <button onclick="changeGradient()">Change gradient</button>
             <button onclick="changeRadius()">Change radius</button>
             <button onclick="changeOpacity()">Change opacity</button>
+            <br/>
+            <h:form> 
+                <h:panelGrid columns="2">
+                    <label>Tipo de reclamo: </label>
+                    <h:selectOneMenu value="#{reclamosWebMB.reclamo.fkCodTipoReclamo.codTipoReclamo}">
+                        <f:selectItem itemLabel="Seleccione un tipo de reclamo" 
+                                      noSelectionOption="false"
+                                      itemDisabled="true"/>
+                        <f:selectItems value="#{reclamosWebMB.tiposDeReclamos}" 
+                                       var="tiposReclamos"
+                                       itemValue="#{tiposReclamos.codTipoReclamo}" 
+                                       itemLabel="#{tiposReclamos.nombreTipoReclamo.toUpperCase()}"/>
+                    </h:selectOneMenu>
+
+
+                    <!--                    <label for="estado">Estado:</label>
+                                        <h:selectManyCheckbox id="estado" value="">
+                                            <f:selectItem itemValue="1" itemLabel="Pendientes" />
+                                            <f:selectItem itemValue="2" itemLabel="Atendidos" />
+                                            <f:selectItem itemValue="3" itemLabel="Finalizados" />
+                                        </h:selectManyCheckbox>-->
+
+
+
+                    <label for="fechaDesde">Fecha desde: </label>
+                    <p:calendar id="fechaInicio" 
+                                value="#{reclamosWebMB.fechaDesde}"
+                                pattern="dd/MM/yyyy"
+                                mask="true"
+                                locale="es"/>
+
+                    <label for="fechaHasta">Fecha hasta: </label>
+                    <p:calendar id="fechaFin"
+                                value="#{reclamosWebMB.fechaHasta}"
+                                pattern="dd/MM/yyyy"
+                                mask="true"
+                                locale="es"/>
+
+
+
+                    <label for="tipoMapa">Tipo de mapa:</label>
+                    <h:selectOneRadio id="tipoMapa" >
+                        <f:selectItem itemValue="1" itemLabel="Mapa con marcadores" />
+                        <f:selectItem itemValue="2" itemLabel="Mapa de calor" />
+                    </h:selectOneRadio>
+                    <h:commandButton class="btn btn-primary" action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar"/>
+                    <h:outputText value="#{reclamosWebMB.resultadoConsulta}"/>
+                </h:panelGrid>
+
+            </h:form>
         </div>
-        <script type="text/javascript">
-            function afterLoad(xhr, status, args) {
-                alert(args.size);
-            }
-        </script>
+
         <div id="map"></div>
 
+
+
         <h:outputScript>
-            var map, heatmap;
+
+
+            var mapType = 'heatmap';
+
             function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
+
+            var asuncion = new google.maps.LatLng(-25.2929451, -57.6072704);
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: -25.2929451, lng: -57.6072704},
             zoom: 13,
-            center: {lat: 37.775, lng: -122.434}
+            mapTypeId: google.maps.MapTypeId.TERRAIN
             });
-            heatmap = new google.maps.visualization.HeatmapLayer({
-            data: getPoints(),
+
+            if (mapType === 'heatmap') {
+            heatmap(map, getPoints());
+            } else if (mapType === 'markers') {
+            markers(map, getPoints());
+            }
+            }
+
+            function heatmap(map, data) {
+
+            var points = [];
+
+            $.each(data, function (index, d) {
+
+            points[index] = new google.maps.LatLng(d.lat, d.lng)
+
+            });
+
+            var heatmap = new google.maps.visualization.HeatmapLayer({
+            data: points,
             map: map
             });
             }
 
-            function toggleHeatmap() {
-            heatmap.setMap(heatmap.getMap() ? null : map);
+            function markers(map, data) {
+
+            var bounds = new google.maps.LatLngBounds();
+            var infoWindow = new google.maps.InfoWindow(), marker, i;
+
+            $.each(data, function (index, d) {
+
+            var infoWindowContent =
+            '<div class="info_content">' +
+                '<h3>' + d.title + '</h3>' +
+                '<p>' + d.direccion + '</p>' +
+                '<p>' + d.tipoReclamo + '</p>' +
+                '</div>'
+            ;
+
+            var position = new google.maps.LatLng(d.lat, d.lng);
+            bounds.extend(position);
+
+            marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            title: d.title
+            });
+
+            // Se agrega una información por cada marker
+            google.maps.event.addListener(marker, 'click', (function (marker, i) {
+            return function () {
+            infoWindow.setContent(infoWindowContent);
+            infoWindow.open(map, marker);
+            }
+            })(marker, i));
+
+            });
+
             }
 
-            function changeGradient() {
-            var gradient = [
-            'rgba(0, 255, 255, 0)',
-            'rgba(0, 255, 255, 1)',
-            'rgba(0, 191, 255, 1)',
-            'rgba(0, 127, 255, 1)',
-            'rgba(0, 63, 255, 1)',
-            'rgba(0, 0, 255, 1)',
-            'rgba(0, 0, 223, 1)',
-            'rgba(0, 0, 191, 1)',
-            'rgba(0, 0, 159, 1)',
-            'rgba(0, 0, 127, 1)',
-            'rgba(63, 0, 91, 1)',
-            'rgba(127, 0, 63, 1)',
-            'rgba(191, 0, 31, 1)',
-            'rgba(255, 0, 0, 1)'
-            ]
-            heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
-            }
-
-            function changeRadius() {
-            heatmap.set('radius', heatmap.get('radius') ? null : 20);
-            }
-
-            function changeOpacity() {
-            heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
-            }
-
-
-            // Heatmap data: 500 Points
             function getPoints() {
-            return [
-            <ui:repeat value = "#{mapaBean.lista}" var = "reclamo" >
-                new google.maps.LatLng(#{reclamo.latitud}, #{reclamo.longitud}),
-                
+            var data = [
+            <ui:repeat value = "#{reclamosWebMB.listaRec}" var = "reclamo" varStatus="estado" >
+                {
+                lat: #{reclamo.latitud},
+                lng: #{reclamo.longitud},
+                title: #{reclamo.fechaReclamo},
+                tipoReclamo: #{reclamo.fkCodTipoReclamo.nombreTipoReclamo},
+                direccion: #{reclamo.direccionReclamo}
+                }<h:outputText value="," rendered="#{!estado.last}"/>
             </ui:repeat>
             ];
-            }
 
+            return data;
+            }
         </h:outputScript>
 
 
-
-
-
-
-
-        <script async="async" defer="defer"
-                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
+        <script  type="text/javascript"
+                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
         </script>
 
 
-
-
-        <br />
-        <h:link outcome="welcomePrimefaces" value="Primefaces welcome page" />
     </h:body>
 
 </html>
