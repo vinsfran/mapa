@@ -32,6 +32,9 @@
                 position: absolute;
             }
         </style>
+        <script  type="text/javascript"
+                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
+        </script>
     </h:head>
 
     <h:body>
@@ -50,12 +53,15 @@
                                        itemLabel="#{tiposReclamos.nombreTipoReclamo.toUpperCase()}"/>
                     </p:selectOneMenu>
 
+
                     <label for="estado">Estado:</label>
                     <p:selectManyCheckbox id="estado" value="#{reclamosWebMB.estadoReclamo}">
                         <f:selectItem itemValue="1" itemLabel="Pendientes" />
                         <f:selectItem itemValue="2" itemLabel="Atendidos" />
                         <f:selectItem itemValue="3" itemLabel="Finalizados" />
                     </p:selectManyCheckbox>
+
+
 
                     <label for="fechaDesde">Fecha desde: </label>
                     <p:calendar id="fechaInicio" 
@@ -86,21 +92,21 @@
                         <h:outputText id="pendiente"
                                       value="#{reclamosWebMB.totalPendiente}"
                                       rendered="#{reclamosWebMB.totalPendiente > 0 ? true:false}"/>
-                        
+
                         <h:outputLabel value="Total atendidos" 
                                        for="atendido"
                                        rendered="#{reclamosWebMB.totalAtendido > 0 ? true:false}"/>
                         <h:outputText id="atendido" 
                                       value="#{reclamosWebMB.totalAtendido}"
                                       rendered="#{reclamosWebMB.totalAtendido > 0 ? true:false}"/>
-                        
+
                         <h:outputLabel value="Total finalizados" 
                                        for="finalizado"
                                        rendered="#{reclamosWebMB.totalFinalizado > 0 ? true:false}"/>
                         <h:outputText id="finalizado" 
                                       value="#{reclamosWebMB.totalFinalizado}"
                                       rendered="#{reclamosWebMB.totalFinalizado > 0 ? true:false}"/>
-                        
+
                         <h:outputLabel value="Total de reclamos" 
                                        for="total"
                                        rendered="#{reclamosWebMB.totalGeneral > 0 ? true:false}"/>
@@ -112,75 +118,13 @@
             </p:fieldset>
         </h:form>
 
-        <div id="map"></div>
 
-        <h:outputScript>
-            var map, heatmap;
-            function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 13,
-            center: {lat: -25.2929451, lng: -57.6072704},
-            disableDefaultUI: true
-            });
-
-            heatmap = new google.maps.visualization.HeatmapLayer({
-            data: getPoints(),
-            map: map
-            });
-
-            }
-
-            function toggleHeatmap() {
-            heatmap.setMap(heatmap.getMap() ? null : map);
-            }
-
-            function changeGradient() {
-            var gradient = [
-            'rgba(0, 255, 255, 0)',
-            'rgba(0, 255, 255, 1)',
-            'rgba(0, 191, 255, 1)',
-            'rgba(0, 127, 255, 1)',
-            'rgba(0, 63, 255, 1)',
-            'rgba(0, 0, 255, 1)',
-            'rgba(0, 0, 223, 1)',
-            'rgba(0, 0, 191, 1)',
-            'rgba(0, 0, 159, 1)',
-            'rgba(0, 0, 127, 1)',
-            'rgba(63, 0, 91, 1)',
-            'rgba(127, 0, 63, 1)',
-            'rgba(191, 0, 31, 1)',
-            'rgba(255, 0, 0, 1)'
-            ]
-            heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
-            }
-
-            function changeRadius() {
-            heatmap.set('radius', heatmap.get('radius') ? null : 20);
-            }
-
-            function changeOpacity() {
-            heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
-            }
-
-
-            // Heatmap data: 500 Points
-            function getPoints() {
-            return [
-            <ui:repeat value = "#{reclamosWebMB.listaRec}" var = "reclamo" >
-                new google.maps.LatLng(#{reclamo.latitud}, #{reclamo.longitud}),                
-            </ui:repeat>
-            ];
-            }
-
-
-
-        </h:outputScript>
-
-        <script  type="text/javascript"
-                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
-        </script>
-
-
+        <div align="right">
+            <f:view contentType="text/html">
+                <p:chart type="pie" model="#{reclamosWebMB.pieModel2}"
+                         style="width:50%;height:800px"/>
+            </f:view>
+        </div>
     </h:body>
 
 </html>

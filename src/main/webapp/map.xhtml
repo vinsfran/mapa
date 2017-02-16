@@ -20,41 +20,30 @@
                 height: 100%;
             }
             #floating-panel {
-                position: absolute;
-                top: 10px;
+                top: 1%;
                 left: 10px;
                 z-index: 5;
-                background-color: #fff;
                 padding: 5px;
-                border: 1px solid #999;
                 text-align: left;
-                font-family: 'Roboto','sans-serif';
-                line-height: 30px;
                 padding-left: 10px;
             }
 
             #floating-panel {
-                background-color: #fff;
-                border: 1px solid #999;
-                padding: 5px;
                 position: absolute;
-                top: 10px;
-                z-index: 5;
             }
         </style>
+        <script  type="text/javascript"
+                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
+        </script>
     </h:head>
 
     <h:body>
-        <div id="floating-panel">
-            <button onclick="toggleHeatmap()">Toggle Heatmap</button>
-            <button onclick="changeGradient()">Change gradient</button>
-            <button onclick="changeRadius()">Change radius</button>
-            <button onclick="changeOpacity()">Change opacity</button>
-            <br/>
-            <h:form> 
+        <h:form id="floating-panel"> 
+            <p:fieldset  legend="" toggleable="true" toggleSpeed="100">
+
                 <h:panelGrid columns="2">
-                    <label>Tipo de reclamo: </label>
-                    <h:selectOneMenu value="#{reclamosWebMB.reclamo.fkCodTipoReclamo.codTipoReclamo}">
+                    <h:outputLabel value="Tipo de reclamo:"/>
+                    <p:selectOneMenu value="#{reclamosWebMB.reclamo.fkCodTipoReclamo.codTipoReclamo}" autoWidth="false">
                         <f:selectItem itemLabel="Seleccione un tipo de reclamo" 
                                       noSelectionOption="false"
                                       itemDisabled="true"/>
@@ -62,15 +51,15 @@
                                        var="tiposReclamos"
                                        itemValue="#{tiposReclamos.codTipoReclamo}" 
                                        itemLabel="#{tiposReclamos.nombreTipoReclamo.toUpperCase()}"/>
-                    </h:selectOneMenu>
+                    </p:selectOneMenu>
 
 
-                    <!--                    <label for="estado">Estado:</label>
-                                        <h:selectManyCheckbox id="estado" value="">
-                                            <f:selectItem itemValue="1" itemLabel="Pendientes" />
-                                            <f:selectItem itemValue="2" itemLabel="Atendidos" />
-                                            <f:selectItem itemValue="3" itemLabel="Finalizados" />
-                                        </h:selectManyCheckbox>-->
+                    <label for="estado">Estado:</label>
+                    <p:selectManyCheckbox id="estado" value="#{reclamosWebMB.estadoReclamo}">
+                        <f:selectItem itemValue="1" itemLabel="Pendientes" />
+                        <f:selectItem itemValue="2" itemLabel="Atendidos" />
+                        <f:selectItem itemValue="3" itemLabel="Finalizados" />
+                    </p:selectManyCheckbox>
 
 
 
@@ -88,121 +77,59 @@
                                 mask="true"
                                 locale="es"/>
 
-
-
                     <label for="tipoMapa">Tipo de mapa:</label>
-                    <h:selectOneRadio id="tipoMapa" >
+                    <p:selectOneRadio id="tipoMapa" value="#{reclamosWebMB.tipoMapa}" layout="pageDirection">
+                        <f:selectItem itemValue="0" itemLabel="Mapa de calor" />
                         <f:selectItem itemValue="1" itemLabel="Mapa con marcadores" />
-                        <f:selectItem itemValue="2" itemLabel="Mapa de calor" />
-                    </h:selectOneRadio>
-                    <h:commandButton class="btn btn-primary" action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar"/>
-                    <h:outputText value="#{reclamosWebMB.resultadoConsulta}"/>
+                        <f:selectItem itemValue="2" itemLabel="Grafico estadistico" />
+                    </p:selectOneRadio>
+
+                    <p:commandButton action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar" ajax="false"/>
+                    <h:panelGrid columns="2">
+                        <h:outputLabel value="Total pendientes (ROJO)" 
+                                       for="pendiente" 
+                                       rendered="#{reclamosWebMB.totalPendiente > 0 ? true:false}"/>
+                        <h:outputText id="pendiente"
+                                      value="#{reclamosWebMB.totalPendiente}"
+                                      rendered="#{reclamosWebMB.totalPendiente > 0 ? true:false}"/>
+
+                        <h:outputLabel value="Total atendidos (AMARILLO)" 
+                                       for="atendido"
+                                       rendered="#{reclamosWebMB.totalAtendido > 0 ? true:false}"/>
+                        <h:outputText id="atendido" 
+                                      value="#{reclamosWebMB.totalAtendido}"
+                                      rendered="#{reclamosWebMB.totalAtendido > 0 ? true:false}"/>
+
+                        <h:outputLabel value="Total finalizados (VERDE)" 
+                                       for="finalizado"
+                                       rendered="#{reclamosWebMB.totalFinalizado > 0 ? true:false}"/>
+                        <h:outputText id="finalizado" 
+                                      value="#{reclamosWebMB.totalFinalizado}"
+                                      rendered="#{reclamosWebMB.totalFinalizado > 0 ? true:false}"/>
+
+                        <h:outputLabel value="Total de reclamos" 
+                                       for="total"
+                                       rendered="#{reclamosWebMB.totalGeneral > 0 ? true:false}"/>
+                        <h:outputText id="total" 
+                                      value="#{reclamosWebMB.totalGeneral}"
+                                      rendered="#{reclamosWebMB.totalGeneral > 0 ? true:false}"/>
+                    </h:panelGrid>
                 </h:panelGrid>
-
-            </h:form>
-        </div>
-
-        <div id="map"></div>
+            </p:fieldset>
+        </h:form>
 
 
 
-        <h:outputScript>
-
-
-            var mapType = 'heatmap';
-
-            function initMap() {
-
-            var asuncion = new google.maps.LatLng(-25.2929451, -57.6072704);
-
-            var map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat: -25.2929451, lng: -57.6072704},
-            zoom: 13,
-            mapTypeId: google.maps.MapTypeId.TERRAIN
-            });
-
-            if (mapType === 'heatmap') {
-            heatmap(map, getPoints());
-            } else if (mapType === 'markers') {
-            markers(map, getPoints());
-            }
-            }
-
-            function heatmap(map, data) {
-
-            var points = [];
-
-            $.each(data, function (index, d) {
-
-            points[index] = new google.maps.LatLng(d.lat, d.lng)
-
-            });
-
-            var heatmap = new google.maps.visualization.HeatmapLayer({
-            data: points,
-            map: map
-            });
-            }
-
-            function markers(map, data) {
-
-            var bounds = new google.maps.LatLngBounds();
-            var infoWindow = new google.maps.InfoWindow(), marker, i;
-
-            $.each(data, function (index, d) {
-
-            var infoWindowContent =
-            '<div class="info_content">' +
-                '<h3>' + d.title + '</h3>' +
-                '<p>' + d.direccion + '</p>' +
-                '<p>' + d.tipoReclamo + '</p>' +
-                '</div>'
-            ;
-
-            var position = new google.maps.LatLng(d.lat, d.lng);
-            bounds.extend(position);
-
-            marker = new google.maps.Marker({
-            position: position,
-            map: map,
-            title: d.title
-            });
-
-            // Se agrega una información por cada marker
-            google.maps.event.addListener(marker, 'click', (function (marker, i) {
-            return function () {
-            infoWindow.setContent(infoWindowContent);
-            infoWindow.open(map, marker);
-            }
-            })(marker, i));
-
-            });
-
-            }
-
-            function getPoints() {
-            var data = [
-            <ui:repeat value = "#{reclamosWebMB.listaRec}" var = "reclamo" varStatus="estado" >
-                {
-                lat: #{reclamo.latitud},
-                lng: #{reclamo.longitud},
-                title: #{reclamo.fechaReclamo},
-                tipoReclamo: #{reclamo.fkCodTipoReclamo.nombreTipoReclamo},
-                direccion: #{reclamo.direccionReclamo}
-                }<h:outputText value="," rendered="#{!estado.last}"/>
-            </ui:repeat>
-            ];
-
-            return data;
-            }
-        </h:outputScript>
-
-
-        <script  type="text/javascript"
-                 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyByu13Mvy_-A5_JQBsHfVdU_-bU5C6GlQY&amp;libraries=visualization&amp;callback=initMap">
-        </script>
-
-
+        <f:view contentType="text/html">
+            <p:gmap id="gmap"
+                    center="-25.2929451, -57.6072704" 
+                    zoom="13" type="TERRAIN" 
+                    model="#{reclamosWebMB.emptyModel}"
+                    streetView="true"
+                    style="width:100%;height:100%"
+                    disableDefaultUI="true">
+            </p:gmap>
+        </f:view>
     </h:body>
 
 </html>

@@ -39,16 +39,31 @@ public class ReclamosSB {
         return q.getResultList();
     }
 
-    public List<Reclamos> listarRangoDeFecha(Integer codTipoReclamo, Date fechaDesde, Date fechaHasta) {
+    public List<Reclamos> listarRangoDeFecha(Integer codTipoReclamo, Date fechaDesde, Date fechaHasta, List<Integer> estadosReclamo) {
         StringBuilder jpql = new StringBuilder();
         jpql.append("SELECT e ");
         jpql.append("FROM Reclamos e ");
         jpql.append("WHERE e.fkCodTipoReclamo.codTipoReclamo = :paramCodTipo ");
-        jpql.append("AND e.fechaReclamo BETWEEN :paramFechaDesde AND :paramFechaHasta ");
+        if (fechaDesde != null && fechaHasta != null) {
+            jpql.append("AND e.fechaReclamo BETWEEN :paramFechaDesde AND :paramFechaHasta ");
+        }
+        if (!estadosReclamo.isEmpty()) {
+            String sql = "AND e.fkCodEstadoReclamo.codEstadoReclamo IN (";
+            for (int i = 0; i < estadosReclamo.size(); i++) {
+                sql = sql + estadosReclamo.get(i);
+                if ((i + 1) != estadosReclamo.size()) {
+                    sql = sql + ",";
+                }
+            }
+            sql = sql + ")";
+            jpql.append(sql);
+        }
         Query q = em.createQuery(jpql.toString());
         q.setParameter("paramCodTipo", codTipoReclamo);
-        q.setParameter("paramFechaDesde", fechaDesde);
-        q.setParameter("paramFechaHasta", fechaHasta);
+        if (fechaDesde != null && fechaHasta != null) {
+            q.setParameter("paramFechaDesde", fechaDesde);
+            q.setParameter("paramFechaHasta", fechaHasta);
+        }
         return q.getResultList();
     }
 
@@ -68,7 +83,7 @@ public class ReclamosSB {
         StringBuilder jpql = new StringBuilder();
         jpql.append("SELECT e ");
         jpql.append("FROM TiposReclamos e ");
-        jpql.append("ORDER BY e.topTipoReclamo DESC");
+        jpql.append("ORDER BY e.nombreTipoReclamo");
         Query q = em.createQuery(jpql.toString());
         return q.getResultList();
     }
