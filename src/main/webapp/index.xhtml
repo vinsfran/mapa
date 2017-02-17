@@ -81,32 +81,24 @@
                     <p:commandButton action="#{reclamosWebMB.consultarPorRangoDeFecha()}" value="Consultar" ajax="false"/>
                     <h:panelGrid columns="2">
                         <h:outputLabel value="Total pendientes" 
-                                       for="pendiente" 
-                                       rendered="#{reclamosWebMB.totalPendiente > 0 ? true:false}"/>
+                                       for="pendiente"/>
                         <h:outputText id="pendiente"
-                                      value="#{reclamosWebMB.totalPendiente}"
-                                      rendered="#{reclamosWebMB.totalPendiente > 0 ? true:false}"/>
+                                      value="#{reclamosWebMB.totalPendiente}"/>
                         
                         <h:outputLabel value="Total atendidos" 
-                                       for="atendido"
-                                       rendered="#{reclamosWebMB.totalAtendido > 0 ? true:false}"/>
+                                       for="atendido"/>
                         <h:outputText id="atendido" 
-                                      value="#{reclamosWebMB.totalAtendido}"
-                                      rendered="#{reclamosWebMB.totalAtendido > 0 ? true:false}"/>
+                                      value="#{reclamosWebMB.totalAtendido}"/>
                         
                         <h:outputLabel value="Total finalizados" 
-                                       for="finalizado"
-                                       rendered="#{reclamosWebMB.totalFinalizado > 0 ? true:false}"/>
+                                       for="finalizado"/>
                         <h:outputText id="finalizado" 
-                                      value="#{reclamosWebMB.totalFinalizado}"
-                                      rendered="#{reclamosWebMB.totalFinalizado > 0 ? true:false}"/>
+                                      value="#{reclamosWebMB.totalFinalizado}"/>
                         
                         <h:outputLabel value="Total de reclamos" 
-                                       for="total"
-                                       rendered="#{reclamosWebMB.totalGeneral > 0 ? true:false}"/>
+                                       for="total"/>
                         <h:outputText id="total" 
-                                      value="#{reclamosWebMB.totalGeneral}"
-                                      rendered="#{reclamosWebMB.totalGeneral > 0 ? true:false}"/>
+                                      value="#{reclamosWebMB.totalGeneral}"/>
                     </h:panelGrid>
                 </h:panelGrid>
             </p:fieldset>

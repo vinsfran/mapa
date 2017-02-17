@@ -70,73 +70,47 @@ public class ReclamosWebMB implements Serializable {
 
         listaRec = reclamosSB.listarRangoDeFecha(reclamo.getFkCodTipoReclamo().getCodTipoReclamo(), fechaDesde, fechaHasta, estadoReclamo);
         totalGeneral = listaRec.size();
-        if (tipoMapa == 0) {
-            for (int i = 0; i < listaRec.size(); i++) {
-                switch (listaRec.get(i).getFkCodEstadoReclamo().getCodEstadoReclamo()) {
-                    case 3:
-                        totalFinalizado = totalFinalizado + 1;
-                        break;
-                    case 2:
-                        totalAtendido = totalAtendido + 1;
-                        break;
-                    default:
-                        totalPendiente = totalPendiente + 1;
-                        break;
-                }
+        emptyModel = new DefaultMapModel();
+        emptyModel.addOverlay(null);
+        for (int i = 0; i < listaRec.size(); i++) {
+            Marker marca = new Marker(new LatLng(listaRec.get(i).getLatitud(), listaRec.get(i).getLongitud()));
+            marca.setTitle(listaRec.get(i).getDireccionReclamo());
+            switch (listaRec.get(i).getFkCodEstadoReclamo().getCodEstadoReclamo()) {
+                case 3:
+                    marca.setIcon("http://maps.google.com/mapfiles/ms/micons/green-dot.png");
+                    totalFinalizado = totalFinalizado + 1;
+                    break;
+                case 2:
+                    marca.setIcon("http://maps.google.com/mapfiles/ms/micons/yellow-dot.png");
+                    totalAtendido = totalAtendido + 1;
+                    break;
+                default:
+                    totalPendiente = totalPendiente + 1;
+                    break;
             }
-        } else if (tipoMapa == 1) {
-//            this.emptyModel = null;
-            emptyModel = new DefaultMapModel();
-            emptyModel.addOverlay(null);
-//            Marker marker = new Marker(new LatLng(-25.2929451, -57.6072704), "jkhfdkjf");
-//            emptyModel.addOverlay(marker);
-            for (int i = 0; i < listaRec.size(); i++) {
-                Marker marca = new Marker(new LatLng(listaRec.get(i).getLatitud(), listaRec.get(i).getLongitud()));
-                marca.setTitle(listaRec.get(i).getDireccionReclamo());
-                switch (listaRec.get(i).getFkCodEstadoReclamo().getCodEstadoReclamo()) {
-                    case 3:
-                        marca.setIcon("http://maps.google.com/mapfiles/ms/micons/green-dot.png");
-                        totalFinalizado = totalFinalizado + 1;
-                        break;
-                    case 2:
-                        marca.setIcon("http://maps.google.com/mapfiles/ms/micons/yellow-dot.png");
-                        totalAtendido = totalAtendido + 1;
-                        break;
-                    default:
-                        totalPendiente = totalPendiente + 1;
-                        break;
-                }
-                emptyModel.addOverlay(marca);
-            }
-            return "map";
-        } else {
-            for (int i = 0; i < listaRec.size(); i++) {
-                switch (listaRec.get(i).getFkCodEstadoReclamo().getCodEstadoReclamo()) {
-                    case 3:
-                        totalFinalizado = totalFinalizado + 1;
-                        break;
-                    case 2:
-                        totalAtendido = totalAtendido + 1;
-                        break;
-                    default:
-                        totalPendiente = totalPendiente + 1;
-                        break;
-                }
-            }
-            pieModel2 = new PieChartModel();
-            pieModel2.set("Finalizados", totalFinalizado);
-            pieModel2.set("Atendidos", totalAtendido);
-            pieModel2.set("Pendientes", totalPendiente);
-
-            pieModel2.setTitle(reclamo.getFkCodTipoReclamo().getNombreTipoReclamo());
-            pieModel2.setShowDataLabels(true);
-            pieModel2.setLegendPosition("e");
-            pieModel2.setFill(true);
-            pieModel2.setDiameter(500);
-
-            return "graficos";
+            emptyModel.addOverlay(marca);
         }
-        return "index";
+
+        pieModel2 = new PieChartModel();
+        pieModel2.set("Finalizados", totalFinalizado);
+        pieModel2.set("Atendidos", totalAtendido);
+        pieModel2.set("Pendientes", totalPendiente);
+        pieModel2.setTitle(reclamo.getFkCodTipoReclamo().getNombreTipoReclamo());
+        pieModel2.setShowDataLabels(true);
+        pieModel2.setLegendPosition("e");
+        pieModel2.setFill(true);
+        pieModel2.setDiameter(500);
+
+        String retorno = "";
+
+        if (tipoMapa == 0) {
+            retorno = "index";
+        } else if (tipoMapa == 1) {
+            retorno = "map";
+        } else {
+            retorno = "graficos";
+        }
+        return retorno;
     }
 
     /**
